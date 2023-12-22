@@ -1,56 +1,64 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./App.css";
+import WeatherDetails from "./WeatherDetails";
+import "./Weather.css";
 import "bootstrap/dist/css/bootstrap.css";
 
 
-export default function Weather() {
-  let [city, setCity] = useState("");
-  let [weather, setWeather] = useState({});
-  let [loaded, setLoaded] = useState(false);
-  const [loading, setLoading] = useState(false);
+export default function Weather(props) {
+  const [city, setCity] = useState(props.defaultCity);
+  const [weatherD, setWeatherD] = useState({ loaded: false });
+ 
+
 
   function displayingWeather(response) {
-    setLoaded(true);
-    setWeather({
-      name: response.data.name,
+    console.log(response.data);
+    setWeatherD({
+      loaded: true,
+      city: response.data.name,
       temperature: response.data.main.temp,
       wind: response.data.wind.speed,
       humidity: response.data.main.humidity,
-      icon: `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`,
+      // icon: `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`,
+      icon: response.data.weather[0].icon,
       description: response.data.weather[0].description,
-      date: response.data.dt
+      date: new Date (response.data.dt * 1000),
     });
   }
 
   function handleSubmission(event) {
     event.preventDefault();
-    setLoading(true);
-    let apiKey = "3c949ba49d38be2487ee278e0d2d4059";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-    axios.get(apiUrl).then(displayingWeather);
+    searching();
   }
+
   function updateCity(event) {
     setCity(event.target.value);
   }
-  return (
+
+  function searching(){
+    const apiKey = "3dce9b1c66837262a25b3f448d354a76";
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    axios.get(apiUrl).then(displayingWeather);
+  }
+
+  if (weatherD.loaded){
+    return (
     <div className="weather-container">
       <form onSubmit={handleSubmission} className="weather-form">
-        <input type="text" placeholder="Enter city" onChange={updateCity} />
-        <input type="submit" value="Search" />
+        <div className="row">
+          <div className="col-9">
+            <input type="text" placeholder="Enter city..."  className="p-2" autoFocus="on" onChange={updateCity} />
+          </div>
+          <div className="col-3">
+            <input type="submit" value="Search" className="btn btn-primary w-100 p-2" />
+          </div>         
+        </div>    
       </form>
-      {loading && <p>Loading...</p>}
-      {loaded && (
-        <ul className="weather-details">
-          <h2>{weather.name}</h2>
-          <li>Last updated: {weather.date}</li>
-          <li>Temperature: {Math.round(weather.temperature)} °C</li>
-          <li>Description: {weather.description}</li>
-          <li>Humidity: {weather.humidity} %</li>
-          <li>Wind: {weather.wind} km/h</li>
-          <img src={weather.icon} alt={weather.description} />
-        </ul>
-      )}
+      <WeatherDetails data= {weatherD} />
     </div>
   );
+  }else{
+    searching();
+    return "Please wait...";
+  } 
 }
