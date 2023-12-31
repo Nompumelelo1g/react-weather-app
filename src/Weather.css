@@ -23,7 +23,6 @@
     list-style: none;
 }
 .weather-container .unit {
-    color: rgb(33, 33, 33);
     font-size: 16px;
     font-weight: 400;
     position: relative;
@@ -33,7 +32,6 @@
 
 .weather-container .temperature {
     font-weight: bold;
-    color: rgb(33, 33, 33);
     font-size: 64px;
     line-height: 64px;
     margin-left: 5px;
